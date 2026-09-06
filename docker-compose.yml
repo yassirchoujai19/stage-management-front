@@ -1,0 +1,11 @@
+# Wire the backend service in here once it exists (name it `backend` so
+# docker/nginx.conf's proxy_pass resolves).
+services:
+  frontend:
+    build:
+      context: .
+      args:
+        VITE_API_BASE_URL: /api
+    ports:
+      - '8080:80'
+    restart: unless-stopped
