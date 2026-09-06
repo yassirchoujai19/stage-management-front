@@ -1,0 +1,254 @@
+/**
+ * Design tokens - Stage Management
+ *
+ * Extracted from the Figma file "stage-management-maquetes"
+ * (w3RnA6Z6jfuEUBSgwGFqce). The maquettes contain no Figma variables, so the
+ * raw hex values were read off the four screens (Login, Dashboard, Create
+ * user, Edit user) and normalised into the scales below.
+ *
+ * Two layers:
+ *   1. PRIMITIVES (--slate-500, --blue-600...) - the raw palette. Never use
+ *      these directly in a component.
+ *   2. SEMANTIC (--color-text-muted, --color-surface...) - what a component
+ *      asks for. Always use these. Re-theming means re-pointing the semantic
+ *      layer, not touching every component.
+ */
+
+:root {
+  /* ---------------------------------------------------------------- */
+  /* 1. Primitives - colour                                            */
+  /* ---------------------------------------------------------------- */
+
+  /* Neutral (slate). The whole UI is built on this ramp. */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --white: #ffffff;
+
+  /* Brand (blue). Primary actions, active nav, links, eyebrow labels. */
+  --blue-50: #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+
+  /* Success (emerald). Status dots, positive deltas. */
+  --emerald-50: #ecfdf5;
+  --emerald-100: #d1fae5;
+  --emerald-500: #10b981;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+
+  /* Danger (red / rose). Destructive actions, required markers, alerts. */
+  --red-50: #fef2f2;
+  --red-100: #fee2e2;
+  --red-300: #fca5a5;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --red-700: #b91c1c;
+  --rose-500: #f43f5e;
+
+  /* Warning (amber). Not in the maquettes; added so the tone scale is
+     complete and pending/expiring states have somewhere to live. */
+  --amber-50: #fffbeb;
+  --amber-100: #fef3c7;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+
+  /* ---------------------------------------------------------------- */
+  /* 2. Semantic - surfaces & borders                                  */
+  /* ---------------------------------------------------------------- */
+  --color-canvas: var(--slate-50); /* app background (dashboard) */
+  --color-canvas-auth: #f4f6fa; /* login screen background */
+  --color-surface: var(--white); /* cards, sidebar, topbar, modals */
+  --color-surface-subtle: var(--slate-50); /* table head, filled inputs */
+  --color-surface-muted: var(--slate-100); /* neutral badges, hover rows */
+
+  --color-border: var(--slate-200); /* default 1px hairline */
+  --color-border-soft: rgba(226, 232, 240, 0.8); /* card outline */
+  --color-border-divider: var(--slate-100); /* row separators */
+  --color-border-strong: var(--slate-300);
+
+  /* ---------------------------------------------------------------- */
+  /* 3. Semantic - text                                                */
+  /* ---------------------------------------------------------------- */
+  --color-text: var(--slate-900); /* headings, stat values */
+  --color-text-body: var(--slate-800); /* table cells, input values */
+  --color-text-label: var(--slate-700); /* form labels */
+  --color-text-secondary: var(--slate-500); /* helper copy */
+  --color-text-muted: var(--slate-400); /* meta, breadcrumbs, captions */
+  --color-text-inverse: var(--white);
+  --color-text-link: var(--blue-600);
+
+  /* ---------------------------------------------------------------- */
+  /* 4. Semantic - tones (brand / success / danger / warning / neutral)*/
+  /*    Each tone exposes the same four slots so components can switch */
+  /*    tone with a single data attribute.                             */
+  /* ---------------------------------------------------------------- */
+  --tone-brand-bg: var(--blue-50);
+  --tone-brand-bg-solid: var(--blue-600);
+  --tone-brand-bg-subtle: var(--blue-100);
+  --tone-brand-border: var(--blue-100);
+  --tone-brand-fg: var(--blue-700);
+  --tone-brand-fg-strong: var(--blue-800);
+
+  --tone-success-bg: var(--emerald-50);
+  --tone-success-bg-solid: var(--emerald-500);
+  --tone-success-bg-subtle: var(--emerald-100);
+  --tone-success-border: var(--emerald-100);
+  --tone-success-fg: var(--emerald-600);
+
+  --tone-danger-bg: rgba(254, 242, 242, 0.6);
+  --tone-danger-bg-solid: var(--red-600);
+  --tone-danger-bg-subtle: var(--red-100);
+  --tone-danger-border: var(--red-300);
+  --tone-danger-fg: var(--red-600);
+
+  --tone-warning-bg: var(--amber-50);
+  --tone-warning-bg-solid: var(--amber-500);
+  --tone-warning-bg-subtle: var(--amber-100);
+  --tone-warning-border: var(--amber-100);
+  --tone-warning-fg: var(--amber-600);
+
+  --tone-neutral-bg: var(--slate-50);
+  --tone-neutral-bg-solid: var(--slate-600);
+  --tone-neutral-bg-subtle: var(--slate-100);
+  --tone-neutral-border: var(--slate-200);
+  --tone-neutral-fg: var(--slate-700);
+
+  /* Attention: the "Needs attention" stat delta - louder than muted,
+     quieter than a destructive action. */
+  --color-attention: var(--rose-500);
+
+  /* ---------------------------------------------------------------- */
+  /* 5. Typography                                                     */
+  /* ---------------------------------------------------------------- */
+  --font-sans: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Sizes. The maquettes are dense: 12px is body, not 16px. */
+  --text-2xs: 10px; /* badge text, avatar caption */
+  --text-xs: 11px; /* eyebrows, table head, meta */
+  --text-sm: 12px; /* BODY DEFAULT - labels, inputs, cells */
+  --text-md: 14px; /* nav items */
+  --text-lg: 16px; /* card titles, sidebar wordmark */
+  --text-xl: 20px; /* page title in topbar */
+  --text-2xl: 22px; /* auth card title */
+  --text-3xl: 24px; /* section hero title */
+  --text-4xl: 30px; /* stat value */
+
+  --leading-2xs: 15px;
+  --leading-xs: 16px;
+  --leading-sm: 16px;
+  --leading-md: 20px;
+  --leading-lg: 24px;
+  --leading-xl: 28px;
+  --leading-2xl: 27px;
+  --leading-3xl: 32px;
+  --leading-4xl: 36px;
+  --leading-prose: 1.6;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Eyebrow labels ("WELCOME BACK", "USER", "STUDENT") are uppercase
+     with open tracking. */
+  --tracking-eyebrow: 0.06em;
+  --tracking-caps: 0.04em;
+
+  /* ---------------------------------------------------------------- */
+  /* 6. Space - 4px base grid                                          */
+  /* ---------------------------------------------------------------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---------------------------------------------------------------- */
+  /* 7. Radii                                                          */
+  /* ---------------------------------------------------------------- */
+  --radius-xs: 4px; /* badges */
+  --radius-sm: 6px; /* compact inputs, icon chips */
+  --radius-md: 8px; /* buttons */
+  --radius-lg: 12px; /* large inputs, nav items, callouts, modals */
+  --radius-xl: 16px; /* cards */
+  --radius-full: 9999px;
+
+  /* ---------------------------------------------------------------- */
+  /* 8. Elevation                                                      */
+  /* ---------------------------------------------------------------- */
+  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.05); /* cards, buttons */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.1);
+  --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.05), 0 10px 15px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 8px 5px rgba(0, 0, 0, 0.1), 0 20px 12.5px rgba(0, 0, 0, 0.1); /* modal */
+
+  /* Focus ring. Not specified in the maquettes - added because a keyboard
+     user cannot use this UI without one. */
+  --ring-width: 3px;
+  --ring-color: rgba(37, 99, 235, 0.35);
+  --ring-color-danger: rgba(220, 38, 38, 0.3);
+
+  /* ---------------------------------------------------------------- */
+  /* 9. Motion                                                         */
+  /* ---------------------------------------------------------------- */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---------------------------------------------------------------- */
+  /* 10. Layout                                                        */
+  /* ---------------------------------------------------------------- */
+  --layout-sidebar-width: 256px;
+  --layout-topbar-height: 72px;
+  --layout-gutter: var(--space-8); /* page padding */
+  --layout-content-max: 1600px;
+  --layout-form-max: 768px; /* create/edit user card */
+  --layout-auth-card: 420px;
+
+  --control-height-sm: 30px;
+  --control-height-md: 34px;
+  --control-height-lg: 40px;
+
+  /* ---------------------------------------------------------------- */
+  /* 11. Z-index                                                       */
+  /* ---------------------------------------------------------------- */
+  --z-sticky: 100;
+  --z-dropdown: 200;
+  --z-overlay: 300;
+  --z-modal: 310;
+  --z-toast: 400;
+
+  /* ---------------------------------------------------------------- */
+  /* 12. Back-compat aliases                                           */
+  /*     The scaffolded views use these names. Keep them pointing at   */
+  /*     the new tokens so nothing breaks mid-migration.               */
+  /* ---------------------------------------------------------------- */
+  --bg: var(--color-canvas);
+  --fg: var(--color-text);
+  --muted: var(--color-text-secondary);
+  --border: var(--color-border);
+  --accent: var(--blue-600);
+  --danger: var(--red-600);
+
+  color-scheme: light;
+}

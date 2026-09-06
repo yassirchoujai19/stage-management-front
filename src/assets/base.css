@@ -1,0 +1,132 @@
+/**
+ * Base layer - element defaults.
+ *
+ * Sets the document up so that an unstyled <h2> or <p> already looks like the
+ * maquettes. Component-level styling lives in src/components/ui/.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-text-body);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: var(--weight-bold);
+}
+
+h1 {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-3xl);
+}
+h2 {
+  font-size: var(--text-xl);
+  line-height: var(--leading-xl);
+}
+h3 {
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+}
+h4 {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-text-link);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+hr {
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--color-border-divider);
+}
+
+/* Form elements inherit the type ramp instead of the UA's. Actual control
+   styling is owned by UiInput / UiButton / UiSelect. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* One consistent focus ring across the app. :focus-visible only, so a mouse
+   click never leaves a ring behind. */
+:focus-visible {
+  outline: 2px solid var(--blue-600);
+  outline-offset: 2px;
+}
+
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+::selection {
+  background: var(--blue-100);
+  color: var(--blue-800);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

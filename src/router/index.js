@@ -18,7 +18,7 @@ const routes = [
     path: '/login',
     name: 'login',
     component: () => import('@/views/LoginView.vue'),
-    meta: { guestOnly: true },
+    meta: { guestOnly: true, layout: 'auth' }, // full-bleed: no app chrome
   },
   {
     path: '/forbidden',

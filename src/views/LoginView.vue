@@ -1,13 +1,19 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import UiButton from '@/components/ui/UiButton.vue';
+import UiCheckbox from '@/components/ui/UiCheckbox.vue';
+import UiField from '@/components/ui/UiField.vue';
+import UiInput from '@/components/ui/UiInput.vue';
 
 const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 
 const form = ref({ email: '', password: '' });
+// Not sent yet: the backend has no "remember me" flag. See README.
+const remember = ref(true);
 
 // Dev convenience only: the banner disappears as soon as VITE_USE_MOCK_API=false.
 const isMock = import.meta.env.VITE_USE_MOCK_API === 'true';
@@ -17,6 +23,18 @@ const mockAccounts = [
   'tutor@stage.local',
   'student@stage.local',
 ];
+
+/** 422: field-level errors returned by the backend. */
+function fieldError(name) {
+  const errors = auth.error?.errors?.[name];
+  if (!errors) return '';
+  return Array.isArray(errors) ? errors[0] : errors;
+}
+
+/** Everything else: 401 wrong credentials, 0 backend down, 500... */
+const generalError = computed(() =>
+  auth.error && !auth.error.errors ? auth.error.message : '',
+);
 
 function fillMock(email) {
   form.value = { email, password: 'password' };
@@ -29,91 +47,188 @@ async function onSubmit() {
 </script>
 
 <template>
-  <h1>Sign in</h1>
+  <div class="auth">
+    <main class="auth__card">
+      <header class="auth__header">
+        <p class="u-eyebrow">Welcome back</p>
+        <h1 class="auth__title">Sign in to your workspace</h1>
+        <p class="auth__subtitle">
+          Use your university or company account to continue.
+        </p>
+      </header>
 
-  <form class="login" @submit.prevent="onSubmit">
-    <label>
-      Email
-      <input
-        v-model="form.email"
-        type="email"
-        required
-        autocomplete="username"
-      />
-      <!-- 422: field-level errors returned by the backend -->
-      <small v-if="auth.error?.errors?.email" class="error">
-        {{ auth.error.errors.email[0] ?? auth.error.errors.email }}
-      </small>
-    </label>
+      <form class="auth__form" novalidate @submit.prevent="onSubmit">
+        <UiField label="Email address" :error="fieldError('email')">
+          <UiInput
+            v-model="form.email"
+            size="lg"
+            type="email"
+            icon="mail"
+            placeholder="john.smith@example.com"
+            autocomplete="username"
+            required
+          />
+        </UiField>
 
-    <label>
-      Password
-      <input
-        v-model="form.password"
-        type="password"
-        required
-        autocomplete="current-password"
-      />
-      <small v-if="auth.error?.errors?.password" class="error">
-        {{ auth.error.errors.password[0] ?? auth.error.errors.password }}
-      </small>
-    </label>
+        <UiField label="Password" :error="fieldError('password')">
+          <template #labelAction>
+            <UiButton variant="link" type="button">Forgot password?</UiButton>
+          </template>
+          <UiInput
+            v-model="form.password"
+            size="lg"
+            type="password"
+            icon="lock"
+            placeholder="••••••••••"
+            autocomplete="current-password"
+            revealable
+            required
+          />
+        </UiField>
 
-    <!-- Everything else: 401 wrong credentials, 0 backend down, 500... -->
-    <p v-if="auth.error && !auth.error.errors" class="error">
-      {{ auth.error.message }}
-    </p>
+        <UiCheckbox v-model="remember" label="Remember me for 30 days" />
 
-    <button type="submit" :disabled="auth.loading">
-      {{ auth.loading ? 'Signing in...' : 'Sign in' }}
-    </button>
-  </form>
+        <p v-if="generalError" class="auth__error" role="alert">
+          {{ generalError }}
+        </p>
 
-  <section v-if="isMock" class="mock">
-    <strong>Mock mode</strong> - no backend needed. Password for all accounts:
-    <code>password</code>
-    <ul>
-      <li v-for="email in mockAccounts" :key="email">
-        <button type="button" class="link" @click="fillMock(email)">
-          {{ email }}
-        </button>
-      </li>
-    </ul>
-  </section>
+        <UiButton
+          type="submit"
+          size="lg"
+          block
+          icon-after="arrow-right"
+          :loading="auth.loading"
+        >
+          {{ auth.loading ? 'Signing in…' : 'Sign in securely' }}
+        </UiButton>
 
-  <p v-else class="muted">
-    Backend not ready? The API contract lives in
-    <code>src/services/authService.js</code>.
-  </p>
+        <p class="auth__help">
+          Having trouble signing in? Contact your internship administrator.
+        </p>
+      </form>
+    </main>
+
+    <section v-if="isMock" class="auth__mock">
+      <p class="auth__mock-title">Mock mode</p>
+      <p class="auth__mock-body">
+        No backend needed. Password for every account:
+        <code>password</code>
+      </p>
+      <ul class="auth__mock-list">
+        <li v-for="email in mockAccounts" :key="email">
+          <UiButton variant="link" type="button" @click="fillMock(email)">
+            {{ email }}
+          </UiButton>
+        </li>
+      </ul>
+    </section>
+  </div>
 </template>
 
 <style scoped>
-.mock {
-  margin-top: 2rem;
-  padding: 0.9rem 1.1rem;
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-  max-width: 360px;
+.auth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-8) var(--space-4);
+  gap: var(--space-4);
+  background: var(--color-canvas-auth);
 }
-.mock ul {
-  margin: 0.5rem 0;
-  padding-left: 1.1rem;
+
+.auth__card {
+  width: 100%;
+  max-width: var(--layout-auth-card);
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
 }
-.link {
-  background: none;
-  border: 0;
-  padding: 0;
-  color: var(--accent);
-  text-decoration: underline;
-  cursor: pointer;
+
+.auth__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-6);
 }
-.login {
-  display: grid;
-  gap: 1rem;
-  max-width: 360px;
+
+.auth__title {
+  color: var(--color-text);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-2xl);
 }
-label {
-  display: grid;
-  gap: 0.35rem;
+
+.auth__subtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* The checkbox, the submit button and the help panel each get a little more
+   air than the field-to-field rhythm. */
+.auth__form > .ui-checkbox {
+  margin-top: var(--space-1);
+}
+.auth__form > .ui-button {
+  margin-top: var(--space-1);
+}
+
+.auth__error {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--tone-danger-border);
+  border-radius: var(--radius-md);
+  background: var(--tone-danger-bg);
+  color: var(--tone-danger-fg);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.auth__help {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(241, 245, 249, 0.7);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  line-height: 19px;
+}
+
+/* --- Dev-only mock helper (not part of the maquettes) ----------------- */
+.auth__mock {
+  width: 100%;
+  max-width: var(--layout-auth-card);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+}
+
+.auth__mock-title {
+  color: var(--color-text-label);
+  font-weight: var(--weight-bold);
+}
+
+.auth__mock-body {
+  margin-top: var(--space-1);
+}
+
+.auth__mock-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  list-style: none;
 }
 </style>
