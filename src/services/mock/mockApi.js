@@ -11,11 +11,15 @@
  * backend is live.
  */
 
+// Mirrors the real API payload exactly: first_name/last_name (no `name`),
+// uppercase roles, is_active. Same emails as the backend seeder, so switching
+// VITE_USE_MOCK_API changes nothing the user can see.
 const USERS = [
-  { id: 1, name: 'Admin Cosmic', email: 'admin@stage.local', role: 'admin', password: 'password' },
-  { id: 2, name: 'Tuteur Test', email: 'tutor@stage.local', role: 'tutor', password: 'password' },
-  { id: 3, name: 'Etudiant Test', email: 'student@stage.local', role: 'student', password: 'password' },
+  { id: 1, first_name: 'System', last_name: 'Admin', email: 'admin@example.com', role: 'ADMIN', is_active: true, password: 'password' },
+  { id: 2, first_name: 'Ahmed', last_name: 'Benali', email: 'ahmed@example.com', role: 'SUPERVISOR', is_active: true, password: 'password' },
+  { id: 3, first_name: 'Youssef', last_name: 'Amrani', email: 'youssef@example.com', role: 'STUDENT', is_active: true, password: 'password' },
 ]
+
 
 const INTERNSHIPS = [
   { id: 1, title: 'Dev Frontend Vue - Cosmic Data', company: 'Cosmic Data', status: 'pending', student_id: 3 },

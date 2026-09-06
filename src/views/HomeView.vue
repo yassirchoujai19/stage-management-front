@@ -6,7 +6,7 @@ const auth = useAuthStore()
 <template>
   <h1>Dashboard</h1>
   <p class="muted">
-    Signed in as {{ auth.user?.name ?? auth.user?.email ?? 'unknown user' }}
+    Signed in as {{ auth.displayName || 'unknown user' }}
     <span v-if="auth.role"> - role: {{ auth.role }}</span>
   </p>
 </template>

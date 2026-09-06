@@ -3,6 +3,14 @@ import { ref, computed } from 'vue'
 import authService from '@/services/authService'
 import { getToken, setToken, clearToken } from '@/utils/tokenStorage'
 
+/** Role values exactly as the backend spells them. Compare against these, never
+ *  against raw strings scattered through components. */
+export const ROLES = Object.freeze({
+  ADMIN: 'ADMIN',
+  SUPERVISOR: 'SUPERVISOR',
+  STUDENT: 'STUDENT',
+})
+
 /**
  * Global auth state. Any component can read it; nobody talks to the API directly.
  * Pinia store = shared reactive state + the actions that change it.
@@ -14,7 +22,20 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref(null)
 
   const isAuthenticated = computed(() => Boolean(token.value))
+
+  // Backend roles are uppercase - compare with the ROLES map above.
   const role = computed(() => user.value?.role ?? null)
+
+  // The API returns first_name/last_name, never a single `name`. Everything that
+  // shows a user goes through this, so one fallback chain covers the whole app.
+  const displayName = computed(() => {
+    const u = user.value
+    if (!u) return ''
+    const full = [u.first_name, u.last_name].filter(Boolean).join(' ')
+    return full || u.name || u.email || ''
+  })
+
+  const isAdmin = computed(() => role.value === ROLES.ADMIN)
 
   async function login(credentials) {
     loading.value = true
@@ -53,5 +74,17 @@ export const useAuthStore = defineStore('auth', () => {
     clearToken()
   }
 
-  return { token, user, loading, error, isAuthenticated, role, login, fetchUser, logout }
+  return {
+    token,
+    user,
+    loading,
+    error,
+    isAuthenticated,
+    role,
+    displayName,
+    isAdmin,
+    login,
+    fetchUser,
+    logout,
+  }
 })

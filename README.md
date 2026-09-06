@@ -147,11 +147,14 @@ shows the accounts as clickable links.
 
 | Email | Role |
 |---|---|
-| `admin@stage.local` | admin |
-| `tutor@stage.local` | tutor |
-| `student@stage.local` | student |
+| `admin@example.com` | ADMIN |
+| `ahmed@example.com` | SUPERVISOR |
+| `youssef@example.com` | STUDENT |
 
 Password for all three: **`password`**
+
+Same emails, roles and payload shape as the Laravel seeder, so flipping the flag
+changes nothing visible.
 
 The mock reproduces the real contract on purpose - `401` on bad credentials,
 `422` with per-field `errors` on empty fields, `401` on an unknown token, plus a
@@ -183,33 +186,58 @@ The 401/403 distinction matters: **401 = who are you** (log in again),
 
 ---
 
-## 8. Connecting to the real backend
+## 8. The backend contract (connected)
 
-What you need from the backend dev before writing a single call:
+Backend: Laravel 13 + Sanctum, branch `develop` of `stage-management-back-end`.
+Run it with `php artisan serve` on `:8000`; the Vite proxy does the rest.
 
-1. **Base URL** of the API in dev and in prod. Is there an `/api` prefix? A version (`/api/v1`)?
-2. **Auth mechanism**: JWT bearer token? session cookie? OAuth2?
-3. **Login endpoint**: exact path, exact request body field names
-   (`email` or `username`?), exact response shape (`token`? `access_token`?).
-4. **Token lifetime** and whether a **refresh token** endpoint exists.
-5. Is there a **`GET /me`** endpoint to restore a session after a page refresh?
-6. **Error format**: where does the message live? What does a 422 body look like?
-7. **Roles/permissions**: exact list of role values (`admin`, `tutor`, `student`...).
-8. **Pagination**: bare array, or `{ data, meta }`? Query params `page`/`per_page`?
-9. **Date format** (ISO 8601 UTC, hopefully) and timezone handling.
-10. **CORS**: which origins are allowed, and are credentials allowed?
-11. **File uploads**: multipart or base64? Size limits?
+**Swagger UI: http://localhost:8000/api/documentation**
 
-Ask for an **OpenAPI/Swagger URL** - it answers most of the above at once.
+| Method | Endpoint | Auth | Returns |
+|---|---|---|---|
+| POST | `/api/login` | public | `{ user, token }` |
+| POST | `/api/logout` | Bearer | `{ message }` |
+| GET | `/api/me` | Bearer | the user object, unwrapped |
 
-Then, to connect:
+User payload - note **`first_name` + `last_name`, there is no `name`**, and roles
+are **uppercase**:
 
-1. Set `VITE_PROXY_TARGET` to the backend URL in `.env.development`.
-2. Fix the paths and field names in `src/services/authService.js`.
-3. Run `npm run dev`, open DevTools → Network, log in, confirm the request shape.
-4. Copy `internshipService.js` per resource and build the views.
+```json
+{ "id": 4, "first_name": "Youssef", "last_name": "Amrani",
+  "email": "youssef@example.com", "role": "STUDENT",
+  "is_active": true, "created_at": "...", "updated_at": "..." }
+```
 
----
+Read names through `auth.displayName` and compare roles against the `ROLES` map
+exported from `src/stores/auth.js` - never against raw strings.
+
+Errors, verified against the running API:
+
+| Case | Response |
+|---|---|
+| Wrong credentials | `401 { "message": "Invalid credentials" }` |
+| Missing fields | `422 { message, errors: { email: [...], password: [...] } }` |
+| No / stale token | `401 { "message": "Unauthenticated." }` |
+
+Seeded accounts (all password `password`): `admin@example.com`,
+`ahmed@`/`sara@example.com` (supervisors), `youssef@`/`imane@`/`omar@`/`nour@`/
+`karim@`/`salma@example.com` (students).
+
+### Still missing
+
+- **No internships endpoint yet.** `/api/internships` returns 404, so the Stages
+  view renders the error and stops - by design, nothing crashes.
+- Admin user CRUD (`/api/users`) exists on the backend branch
+  `feature/admin-crud`, not on `develop`.
+- No refresh-token flow: Sanctum tokens do not expire by default.
+- No "remember me" flag on the API; the login checkbox is not sent yet.
+
+### Local gotchas
+
+- The backend `.env.example` targets **MySQL** (`csm`). With no MySQL server,
+  `DB_CONNECTION=sqlite` works - migrations and the seeder run clean on it.
+- Its `composer.lock` needs **PHP >= 8.4.1**; on PHP 8.3 install with
+  `composer install --ignore-platform-req=php`.
 
 ## 9. Docker
 
@@ -251,10 +279,11 @@ nginx's `proxy_pass http://backend:8000/api/` resolves it by container name.
 - [x] Mock backend so login works with no API (section 6b)
 - [x] 403 and 404 views
 - [x] Dockerfile + nginx SPA config
-- [ ] Get the API contract from the backend dev (section 8)
-- [ ] Point `VITE_PROXY_TARGET` at the real backend
-- [ ] Confirm login works against the real API
-- [ ] Set `VITE_USE_MOCK_API=false` and delete `src/services/mock/`
+- [x] Get the API contract from the backend dev (section 8)
+- [x] Point `VITE_PROXY_TARGET` at the real backend
+- [x] Confirm login works against the real API (login, /me on refresh, logout revokes the token, 401 + 422 render)
+- [x] Set `VITE_USE_MOCK_API=false` (mock kept for offline work)
+- [ ] Build the Stages view once `/api/internships` exists
 - [ ] Add linting (`eslint` + `prettier`) once the team agrees on rules
 - [ ] Add tests (`vitest`) for stores and services
 - [ ] Add a refresh-token flow if the backend issues short-lived tokens

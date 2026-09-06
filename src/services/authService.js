@@ -8,33 +8,33 @@ const MOCK = import.meta.env.VITE_USE_MOCK_API === 'true'
 
 /**
  * All auth-related endpoints in one place.
- * ⚠️ Paths and payload field names below are GUESSES until the backend dev
- * confirms them - see the "Questions for the backend dev" list in README.md.
- * When they differ, you change them HERE and nowhere else.
+ * Matches the Laravel + Sanctum API on branch `develop`:
+ *   POST /api/login   public  -> { user, token }
+ *   POST /api/logout  bearer  -> { message }
+ *   GET  /api/me      bearer  -> user object (returned bare, not wrapped)
  */
 export default {
-  /** POST /auth/login -> { token, user } */
+  /** POST /api/login -> { token, user } */
   async login({ email, password }) {
     if (MOCK) return mockApi.login({ email, password })
 
-    const { data } = await http.post('/auth/login', { email, password })
-    return {
-      token: data.token ?? data.access_token ?? data.accessToken,
-      user: data.user ?? data.data ?? null,
-    }
+    const { data } = await http.post('/login', { email, password })
+    return { token: data.token, user: data.user ?? null }
   },
 
-  /** POST /auth/logout - some backends have none; failure is not fatal. */
+  /** POST /api/logout - revokes the current token. A failure must not trap the
+   *  user in a logged-in UI, so errors are swallowed and the client-side
+   *  cleanup in the auth store runs regardless. */
   logout() {
     if (MOCK) return mockApi.logout()
-    return http.post('/auth/logout').catch(() => null)
+    return http.post('/logout').catch(() => null)
   },
 
-  /** GET /auth/me -> current user, used to restore a session after F5. */
+  /** GET /api/me -> current user, used to restore a session after F5. */
   async me() {
     if (MOCK) return mockApi.me(getToken())
 
-    const { data } = await http.get('/auth/me')
-    return data.user ?? data.data ?? data
+    const { data } = await http.get('/me')
+    return data
   },
 }

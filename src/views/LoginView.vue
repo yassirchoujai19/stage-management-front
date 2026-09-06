@@ -18,10 +18,13 @@ const remember = ref(true);
 // Dev convenience only: the banner disappears as soon as VITE_USE_MOCK_API=false.
 const isMock = import.meta.env.VITE_USE_MOCK_API === 'true';
 
+// Literal, not imported from the mock module: importing it would pull the mock
+// into the production bundle and defeat the tree-shaking. Keep in sync with
+// src/services/mock/mockApi.js (same emails as the Laravel seeder).
 const mockAccounts = [
-  'admin@stage.local',
-  'tutor@stage.local',
-  'student@stage.local',
+  { email: 'admin@example.com', role: 'ADMIN' },
+  { email: 'ahmed@example.com', role: 'SUPERVISOR' },
+  { email: 'youssef@example.com', role: 'STUDENT' },
 ];
 
 /** 422: field-level errors returned by the backend. */
@@ -115,9 +118,9 @@ async function onSubmit() {
         <code>password</code>
       </p>
       <ul class="auth__mock-list">
-        <li v-for="email in mockAccounts" :key="email">
-          <UiButton variant="link" type="button" @click="fillMock(email)">
-            {{ email }}
+        <li v-for="account in mockAccounts" :key="account.email">
+          <UiButton variant="link" type="button" @click="fillMock(account.email)">
+            {{ account.email }} - {{ account.role }}
           </UiButton>
         </li>
       </ul>
